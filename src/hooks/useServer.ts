@@ -5,6 +5,7 @@ import {
 } from 'react'
 
 import { apiRequest } from '../services/api'
+import { useInitialLoad } from './useInitialLoad'
 
 import type {
   MinecraftData,
@@ -38,9 +39,9 @@ export function useServer({
     useCallback(async () => {
       try {
         const data =
-          (await apiRequest(
+          await apiRequest<ServerStatus>(
             '/status',
-          )) as ServerStatus
+          )
 
         setStatus(data)
         onError(null)
@@ -59,9 +60,9 @@ export function useServer({
     useCallback(async () => {
       try {
         const data =
-          (await apiRequest(
+          await apiRequest<MinecraftData>(
             '/minecraft',
-          )) as MinecraftData
+          )
 
         setMinecraft(data)
       } catch {
@@ -119,9 +120,9 @@ export function useServer({
    * Sincronização inicial +
    * atualização periódica.
    */
-  useEffect(() => {
-    void refreshAll()
+  useInitialLoad(refreshAll)
 
+  useEffect(() => {
     const interval =
       window.setInterval(() => {
         void refreshAll()

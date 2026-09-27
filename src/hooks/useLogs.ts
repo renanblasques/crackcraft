@@ -1,10 +1,10 @@
 import {
   useCallback,
-  useEffect,
   useState,
 } from 'react'
 
 import { apiRequest } from '../services/api'
+import { useInitialLoad } from './useInitialLoad'
 
 import type {
   LogLineLimit,
@@ -74,9 +74,7 @@ export function useLogs() {
       [lineLimit],
     )
 
-  useEffect(() => {
-    void loadLogs()
-  }, [loadLogs])
+  useInitialLoad(loadLogs)
 
   const changeLineLimit =
     useCallback(

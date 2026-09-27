@@ -80,6 +80,15 @@ export type BackupsData = {
   count: number
 }
 
+export type BackupActionResponse = {
+  accepted: boolean
+  message?: string
+}
+
+export type BackupDownloadResponse = {
+  url?: string
+}
+
 export type BackupStatus = {
   running: boolean
   lastStartedAt: string | null

@@ -1,10 +1,10 @@
 import {
   useCallback,
-  useEffect,
   useState,
 } from 'react'
 
 import { apiRequest } from '../services/api'
+import { useInitialLoad } from './useInitialLoad'
 
 import type {
   PlayerStatsData,
@@ -62,9 +62,7 @@ export function usePlayerStats() {
       }
     }, [])
 
-  useEffect(() => {
-    void loadPlayerStats()
-  }, [loadPlayerStats])
+  useInitialLoad(loadPlayerStats)
 
   return {
     playerStats,

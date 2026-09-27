@@ -1,10 +1,10 @@
 import {
   useCallback,
-  useEffect,
   useState,
 } from 'react'
 
 import { apiRequest } from '../services/api'
+import { useInitialLoad } from './useInitialLoad'
 
 import type {
   AllowlistData,
@@ -195,9 +195,7 @@ export function useAllowlist() {
       [],
     )
 
-  useEffect(() => {
-    void loadAllowlist()
-  }, [loadAllowlist])
+  useInitialLoad(loadAllowlist)
 
   return {
     allowlist,

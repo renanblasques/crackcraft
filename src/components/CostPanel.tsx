@@ -3,6 +3,11 @@ import {
   RefreshCw,
 } from 'lucide-react'
 
+import {
+  useEffect,
+  useState,
+} from 'react'
+
 import type {
   CostData,
 } from '../types/dashboard'
@@ -128,11 +133,40 @@ export function CostPanel({
         ).getTime()
       : null
 
+  const [
+    reachedRefreshAt,
+    setReachedRefreshAt,
+  ] = useState<number | null>(null)
+
+  useEffect(() => {
+    if (nextRefreshAt === null) {
+      return
+    }
+
+    const delay =
+      Math.max(
+        0,
+        nextRefreshAt - Date.now(),
+      )
+
+    const timeout =
+      window.setTimeout(() => {
+        setReachedRefreshAt(
+          nextRefreshAt,
+        )
+      }, delay)
+
+    return () => {
+      window.clearTimeout(timeout)
+    }
+  }, [nextRefreshAt])
+
   const canRefresh =
     !loading &&
     (
       nextRefreshAt === null ||
-      Date.now() >= nextRefreshAt
+      reachedRefreshAt ===
+        nextRefreshAt
     )
 
   return (

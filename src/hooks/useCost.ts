@@ -1,10 +1,10 @@
 import {
   useCallback,
-  useEffect,
   useState,
 } from 'react'
 
 import { apiRequest } from '../services/api'
+import { useInitialLoad } from './useInitialLoad'
 
 import type {
   CostData,
@@ -32,9 +32,9 @@ export function useCost() {
         setCostError(null)
 
         const data =
-          (await apiRequest(
+          await apiRequest<CostData>(
             '/cost',
-          )) as CostData
+          )
 
         setCost(data)
 
@@ -57,9 +57,7 @@ export function useCost() {
       }
     }, [])
 
-  useEffect(() => {
-    void loadCost()
-  }, [loadCost])
+  useInitialLoad(loadCost)
 
   return {
     cost,

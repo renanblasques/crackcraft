@@ -8,6 +8,8 @@ import { apiRequest } from '../services/api'
 
 import type {
   Backup,
+  BackupActionResponse,
+  BackupDownloadResponse,
   BackupsData,
   BackupStatus,
 } from '../types/dashboard'
@@ -58,9 +60,9 @@ export function useBackups({
     useCallback(async () => {
       try {
         const data =
-          (await apiRequest(
+          await apiRequest<BackupsData>(
             '/backups',
-          )) as BackupsData
+          )
 
         setBackups(data.backups)
       } catch (error) {
@@ -75,9 +77,9 @@ export function useBackups({
     useCallback(async () => {
       try {
         const data =
-          (await apiRequest(
+          await apiRequest<BackupStatus>(
             '/backups/status',
-          )) as BackupStatus
+          )
 
         setBackupStatus(data)
 
@@ -98,7 +100,7 @@ export function useBackups({
       onError(null)
 
       const result =
-        await apiRequest(
+        await apiRequest<BackupActionResponse>(
           '/backups',
           'POST',
         )
@@ -133,7 +135,7 @@ export function useBackups({
       onError(null)
 
       const data =
-        await apiRequest(
+        await apiRequest<BackupDownloadResponse>(
           `/backups/${encodeURIComponent(
             backup.name,
           )}/download`,
@@ -145,7 +147,6 @@ export function useBackups({
         )
       }
 
-      // eslint-disable-next-line react-hooks/immutability
       window.location.href =
         data.url
     } catch (error) {

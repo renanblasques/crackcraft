@@ -1,10 +1,10 @@
 import {
   useCallback,
-  useEffect,
   useState,
 } from 'react'
 
 import { apiRequest } from '../services/api'
+import { useInitialLoad } from './useInitialLoad'
 
 import type {
   ServerSettings,
@@ -108,9 +108,7 @@ export function useSettings() {
       [],
     )
 
-  useEffect(() => {
-    void loadSettings()
-  }, [loadSettings])
+  useInitialLoad(loadSettings)
 
   return {
     settings,

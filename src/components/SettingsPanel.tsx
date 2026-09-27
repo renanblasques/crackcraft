@@ -6,7 +6,6 @@ import {
 } from 'lucide-react'
 
 import {
-  useEffect,
   useMemo,
   useState,
 } from 'react'
@@ -43,18 +42,23 @@ export function SettingsPanel({
     form,
     setForm,
   ] =
-    useState<ServerSettings | null>(null)
+    useState<ServerSettings | null>(settings)
+
+  const [
+    formSource,
+    setFormSource,
+  ] =
+    useState<ServerSettings | null>(settings)
 
   const [
     savedMessage,
     setSavedMessage,
   ] = useState(false)
 
-  useEffect(() => {
-    if (settings) {
-      setForm(settings)
-    }
-  }, [settings])
+  if (settings !== formSource) {
+    setFormSource(settings)
+    setForm(settings)
+  }
 
   const changes =
     useMemo(() => {

@@ -8,6 +8,7 @@ import { apiRequest } from '../services/api'
 
 import type {
   Backup,
+  BackupActionResponse,
   RestoreStatus,
 } from '../types/dashboard'
 
@@ -52,9 +53,9 @@ export function useRestore({
     useCallback(async () => {
       try {
         const data =
-          (await apiRequest(
+          await apiRequest<RestoreStatus>(
             '/restore/status',
-          )) as RestoreStatus
+          )
 
         setRestoreStatus(data)
 
@@ -80,7 +81,7 @@ export function useRestore({
         onError(null)
 
         const data =
-          await apiRequest(
+          await apiRequest<BackupActionResponse>(
             `/backups/${encodeURIComponent(
               restoreToConfirm.name,
             )}/restore`,

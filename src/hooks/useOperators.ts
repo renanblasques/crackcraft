@@ -1,10 +1,10 @@
 import {
   useCallback,
-  useEffect,
   useState,
 } from 'react'
 
 import { apiRequest } from '../services/api'
+import { useInitialLoad } from './useInitialLoad'
 
 import type {
   MinecraftOperator,
@@ -203,9 +203,7 @@ export function useOperators() {
       [],
     )
 
-  useEffect(() => {
-    void loadOperators()
-  }, [loadOperators])
+  useInitialLoad(loadOperators)
 
   return {
     operators,
