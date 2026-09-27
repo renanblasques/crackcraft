@@ -7,8 +7,13 @@ type LoadFunction = () =>
 
 export function useInitialLoad(
   load: LoadFunction,
+  enabled = true,
 ) {
   useEffect(() => {
+    if (!enabled) {
+      return
+    }
+
     const timeout =
       window.setTimeout(() => {
         void load()
@@ -17,5 +22,5 @@ export function useInitialLoad(
     return () => {
       window.clearTimeout(timeout)
     }
-  }, [load])
+  }, [enabled, load])
 }

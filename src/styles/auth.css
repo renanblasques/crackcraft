@@ -1,0 +1,169 @@
+[data-amplify-authenticator] {
+  --amplify-colors-background-primary: var(--color-white);
+  --amplify-colors-background-secondary: var(--color-stone-100);
+  --amplify-colors-border-primary: var(--color-line-strong);
+  --amplify-colors-border-secondary: var(--color-line);
+  --amplify-colors-brand-primary-10: var(--color-grass-100);
+  --amplify-colors-brand-primary-80: var(--color-grass-600);
+  --amplify-colors-brand-primary-90: var(--color-grass-800);
+  --amplify-colors-brand-primary-100: var(--color-grass-800);
+  --amplify-colors-font-primary: var(--color-ink);
+  --amplify-colors-font-secondary: var(--color-text-muted);
+  --amplify-fonts-default-variable: var(--font-body);
+  --amplify-components-authenticator-container-width-max: 29rem;
+  --amplify-components-authenticator-router-border-width: 2px;
+  --amplify-components-authenticator-router-border-color: var(--color-line-strong);
+  --amplify-components-authenticator-router-box-shadow: 7px 7px 0 rgba(20, 46, 22, 0.35);
+  --amplify-components-authenticator-form-padding: 1.75rem;
+
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  min-height: 100vh;
+  padding: 40px;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: center;
+  background: var(--color-sky-100);
+}
+
+[data-amplify-authenticator]::before {
+  position: fixed;
+  inset: 0 auto auto 0;
+  width: 50vw;
+  height: 100vh;
+  content: '';
+  background-image: url('/minecraft-overworld.png');
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+  border-right: 6px solid var(--color-grass-800);
+  box-shadow: inset -28px 0 0 rgba(0, 0, 0, 0.08);
+}
+
+[data-amplify-authenticator] [data-amplify-container] {
+  position: relative;
+  z-index: 1;
+  grid-column: 2;
+  width: min(29rem, calc(50vw - 64px));
+  min-width: 0;
+  max-width: 29rem;
+  justify-self: center;
+}
+
+[data-amplify-authenticator] [data-amplify-router] {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+}
+
+[data-amplify-authenticator] [data-amplify-router] {
+  overflow: hidden;
+  border-radius: var(--radius-medium);
+}
+
+[data-amplify-authenticator] .amplify-heading {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+}
+
+[data-amplify-authenticator] .amplify-label {
+  color: var(--color-text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+[data-amplify-authenticator] .amplify-input {
+  min-height: 46px;
+  border: 2px solid var(--color-line-strong);
+  border-radius: var(--radius-small);
+  background: var(--color-stone-50);
+  color: var(--color-ink);
+}
+
+[data-amplify-authenticator] .amplify-input:focus {
+  border-color: var(--color-sky-500);
+  box-shadow: 0 0 0 3px rgba(54, 174, 234, 0.2);
+}
+
+[data-amplify-authenticator] .amplify-button--primary {
+  min-height: 46px;
+  border: 2px solid var(--color-grass-800);
+  border-radius: var(--radius-small);
+  background: var(--color-grass-600);
+  color: var(--color-white);
+  box-shadow: 3px 3px 0 var(--color-grass-800);
+  font-weight: 900;
+}
+
+[data-amplify-authenticator] .amplify-button--primary:hover:not(:disabled) {
+  background: var(--color-grass-500);
+}
+
+[data-amplify-authenticator] .amplify-button--link {
+  color: var(--color-grass-800);
+  font-weight: 800;
+}
+
+@media (max-width: 980px) {
+  body:has([data-amplify-authenticator]) {
+    background: url('/minecraft-overworld.png') center / cover fixed;
+  }
+
+  [data-amplify-authenticator] {
+    padding: 44px 24px 44px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    background: transparent;
+  }
+
+  [data-amplify-authenticator]::before {
+    display: none;
+  }
+
+  [data-amplify-authenticator] [data-amplify-container] {
+    grid-column: 1;
+    width: min(29rem, calc(100vw - 48px));
+    justify-self: center;
+  }
+
+  [data-amplify-authenticator] [data-amplify-router],
+  [data-amplify-authenticator] [data-amplify-form],
+  [data-amplify-authenticator] .amplify-flex,
+  [data-amplify-authenticator] .amplify-field,
+  [data-amplify-authenticator] .amplify-field-group {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  [data-amplify-authenticator] .auth-brand-header {
+    border: 2px solid var(--color-line-strong);
+    border-bottom: 0;
+    border-radius: var(--radius-medium) var(--radius-medium) 0 0;
+    background: rgba(225, 245, 255, 0.96);
+  }
+
+  [data-amplify-authenticator] .auth-notice {
+    margin: 0;
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.94);
+  }
+}
+
+@media (max-width: 520px) {
+  [data-amplify-authenticator] {
+    padding: 20px 14px 32px;
+  }
+
+  [data-amplify-authenticator] [data-amplify-form] {
+    padding: 1.4rem 1.15rem;
+  }
+
+  [data-amplify-authenticator] [data-amplify-container],
+  [data-amplify-authenticator] [data-amplify-router] {
+    width: calc(100vw - 28px) !important;
+  }
+}

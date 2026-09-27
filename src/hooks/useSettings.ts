@@ -11,7 +11,13 @@ import type {
   UpdateServerSettingsResponse,
 } from '../types/dashboard'
 
-export function useSettings() {
+type UseSettingsOptions = {
+  enabled?: boolean
+}
+
+export function useSettings({
+  enabled = true,
+}: UseSettingsOptions = {}) {
   const [
     settings,
     setSettings,
@@ -36,6 +42,12 @@ export function useSettings() {
 
   const loadSettings =
     useCallback(async () => {
+      if (!enabled) {
+        setSettingsLoading(false)
+        setSettingsError(null)
+        return null
+      }
+
       try {
         setSettingsLoading(true)
         setSettingsError(null)
@@ -64,7 +76,7 @@ export function useSettings() {
       } finally {
         setSettingsLoading(false)
       }
-    }, [])
+    }, [enabled])
 
   const updateSettings =
     useCallback(
@@ -72,6 +84,10 @@ export function useSettings() {
         changes:
           Partial<ServerSettings>,
       ) => {
+        if (!enabled) {
+          return
+        }
+
         try {
           setSettingsSaving(true)
           setSettingsError(null)
@@ -105,16 +121,17 @@ export function useSettings() {
           setSettingsSaving(false)
         }
       },
-      [],
+      [enabled],
     )
 
-  useInitialLoad(loadSettings)
+  useInitialLoad(loadSettings, enabled)
 
   return {
     settings,
-    settingsLoading,
-    settingsSaving,
-    settingsError,
+    settingsLoading: enabled && settingsLoading,
+    settingsSaving: enabled && settingsSaving,
+    settingsError:
+      enabled ? settingsError : null,
 
     loadSettings,
     updateSettings,

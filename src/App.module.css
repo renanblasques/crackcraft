@@ -1,0 +1,65 @@
+.shell {
+  min-height: 100vh;
+  background:
+    linear-gradient(rgba(248, 248, 243, 0.9), rgba(248, 248, 243, 0.9)),
+    url('/minecraft-overworld.png') center / cover fixed;
+}
+
+.main {
+  width: min(1180px, calc(100% - 48px));
+  margin: 28px auto 0;
+}
+
+.errorBanner {
+  margin-bottom: 16px;
+  padding: 13px 16px;
+  border: 2px solid var(--color-danger-800);
+  border-radius: var(--radius-small);
+  background: var(--color-danger-100);
+  color: var(--color-danger-800);
+  font-weight: 700;
+  box-shadow: 2px 2px 0 rgba(91, 32, 26, 0.2);
+}
+
+.panels {
+  margin-top: 32px;
+}
+
+.tabPanel[hidden] {
+  display: none;
+}
+
+.footer {
+  width: min(1180px, calc(100% - 48px));
+  margin: 42px auto 0;
+  padding: 22px 0 36px;
+  display: flex;
+  justify-content: space-between;
+  gap: 18px;
+  border-top: 1px solid var(--color-line);
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
+.footer strong {
+  color: var(--color-ink);
+}
+
+@media (max-width: 650px) {
+  .main,
+  .footer {
+    width: min(100% - 28px, 1180px);
+  }
+
+  .main {
+    margin-top: 18px;
+  }
+
+  .panels {
+    margin-top: 24px;
+  }
+
+  .footer {
+    flex-direction: column;
+  }
+}

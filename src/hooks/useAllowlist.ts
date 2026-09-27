@@ -12,7 +12,13 @@ import type {
   AllowlistPlayer,
 } from '../types/dashboard'
 
-export function useAllowlist() {
+type UseAllowlistOptions = {
+  enabled?: boolean
+}
+
+export function useAllowlist({
+  enabled = true,
+}: UseAllowlistOptions = {}) {
   const [
     allowlist,
     setAllowlist,
@@ -37,6 +43,12 @@ export function useAllowlist() {
 
   const loadAllowlist =
     useCallback(async () => {
+      if (!enabled) {
+        setAllowlistLoading(false)
+        setAllowlistError(null)
+        return null
+      }
+
       try {
         setAllowlistLoading(true)
         setAllowlistError(null)
@@ -65,11 +77,15 @@ export function useAllowlist() {
       } finally {
         setAllowlistLoading(false)
       }
-    }, [])
+    }, [enabled])
 
   const addPlayer =
     useCallback(
       async (name: string) => {
+        if (!enabled) {
+          return
+        }
+
         try {
           setAllowlistActionLoading(
             true,
@@ -125,7 +141,7 @@ export function useAllowlist() {
           )
         }
       },
-      [],
+      [enabled],
     )
 
   const removePlayer =
@@ -134,6 +150,10 @@ export function useAllowlist() {
         player:
           AllowlistPlayer,
       ) => {
+        if (!enabled) {
+          return
+        }
+
         try {
           setAllowlistActionLoading(
             true,
@@ -192,16 +212,18 @@ export function useAllowlist() {
           )
         }
       },
-      [],
+      [enabled],
     )
 
-  useInitialLoad(loadAllowlist)
+  useInitialLoad(loadAllowlist, enabled)
 
   return {
     allowlist,
-    allowlistLoading,
-    allowlistActionLoading,
-    allowlistError,
+    allowlistLoading: enabled && allowlistLoading,
+    allowlistActionLoading:
+      enabled && allowlistActionLoading,
+    allowlistError:
+      enabled ? allowlistError : null,
 
     loadAllowlist,
     addPlayer,

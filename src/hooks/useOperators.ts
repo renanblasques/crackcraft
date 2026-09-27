@@ -12,7 +12,13 @@ import type {
   OperatorsMutationResult,
 } from '../types/dashboard'
 
-export function useOperators() {
+type UseOperatorsOptions = {
+  enabled?: boolean
+}
+
+export function useOperators({
+  enabled = true,
+}: UseOperatorsOptions = {}) {
   const [
     operators,
     setOperators,
@@ -37,6 +43,12 @@ export function useOperators() {
 
   const loadOperators =
     useCallback(async () => {
+      if (!enabled) {
+        setOperatorsLoading(false)
+        setOperatorsError(null)
+        return null
+      }
+
       try {
         setOperatorsLoading(true)
         setOperatorsError(null)
@@ -65,7 +77,7 @@ export function useOperators() {
       } finally {
         setOperatorsLoading(false)
       }
-    }, [])
+    }, [enabled])
 
   const addOperator =
     useCallback(
@@ -74,6 +86,10 @@ export function useOperators() {
         permissionLevel = 4,
         bypassesPlayerLimit = false,
       ) => {
+        if (!enabled) {
+          return
+        }
+
         try {
           setOperatorsActionLoading(
             true,
@@ -133,7 +149,7 @@ export function useOperators() {
           )
         }
       },
-      [],
+      [enabled],
     )
 
   const removeOperator =
@@ -142,6 +158,10 @@ export function useOperators() {
         operator:
           MinecraftOperator,
       ) => {
+        if (!enabled) {
+          return
+        }
+
         try {
           setOperatorsActionLoading(
             true,
@@ -200,16 +220,18 @@ export function useOperators() {
           )
         }
       },
-      [],
+      [enabled],
     )
 
-  useInitialLoad(loadOperators)
+  useInitialLoad(loadOperators, enabled)
 
   return {
     operators,
-    operatorsLoading,
-    operatorsActionLoading,
-    operatorsError,
+    operatorsLoading: enabled && operatorsLoading,
+    operatorsActionLoading:
+      enabled && operatorsActionLoading,
+    operatorsError:
+      enabled ? operatorsError : null,
 
     loadOperators,
     addOperator,

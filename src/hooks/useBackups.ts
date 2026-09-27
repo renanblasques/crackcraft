@@ -5,6 +5,7 @@ import {
 } from 'react'
 
 import { apiRequest } from '../services/api'
+import { useInitialLoad } from './useInitialLoad'
 
 import type {
   Backup,
@@ -18,10 +19,12 @@ type UseBackupsOptions = {
   onError: (
     message: string | null,
   ) => void
+  enabled?: boolean
 }
 
 export function useBackups({
   onError,
+  enabled = true,
 }: UseBackupsOptions) {
   const [backups, setBackups] =
     useState<Backup[]>([])
@@ -189,6 +192,22 @@ export function useBackups({
       setDeletingBackup(false)
     }
   }
+
+  const loadInitialData =
+    useCallback(async () => {
+      await Promise.all([
+        loadBackups(),
+        loadBackupStatus(),
+      ])
+    }, [
+      loadBackups,
+      loadBackupStatus,
+    ])
+
+  useInitialLoad(
+    loadInitialData,
+    enabled,
+  )
 
   useEffect(() => {
     if (!backupStatus?.running) {

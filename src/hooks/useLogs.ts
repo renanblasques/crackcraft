@@ -11,7 +11,13 @@ import type {
   MinecraftLogs,
 } from '../types/dashboard'
 
-export function useLogs() {
+type UseLogsOptions = {
+  enabled?: boolean
+}
+
+export function useLogs({
+  enabled = true,
+}: UseLogsOptions = {}) {
   const [
     logs,
     setLogs,
@@ -42,6 +48,12 @@ export function useLogs() {
           LogLineLimit =
             lineLimit,
       ) => {
+        if (!enabled) {
+          setLogsLoading(false)
+          setLogsError(null)
+          return null
+        }
+
         try {
           setLogsLoading(true)
           setLogsError(null)
@@ -71,10 +83,10 @@ export function useLogs() {
           setLogsLoading(false)
         }
       },
-      [lineLimit],
+      [enabled, lineLimit],
     )
 
-  useInitialLoad(loadLogs)
+  useInitialLoad(loadLogs, enabled)
 
   const changeLineLimit =
     useCallback(
@@ -89,8 +101,8 @@ export function useLogs() {
 
   return {
     logs,
-    logsLoading,
-    logsError,
+    logsLoading: enabled && logsLoading,
+    logsError: enabled ? logsError : null,
     lineLimit,
 
     loadLogs,

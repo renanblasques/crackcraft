@@ -5,6 +5,7 @@ import {
 } from 'react'
 
 import { apiRequest } from '../services/api'
+import { useInitialLoad } from './useInitialLoad'
 
 import type {
   Backup,
@@ -112,6 +113,8 @@ export function useRestore({
       loadRestoreStatus,
       onError,
     ])
+
+  useInitialLoad(loadRestoreStatus)
 
   useEffect(() => {
     if (!restoreStatus?.running) {

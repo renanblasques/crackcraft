@@ -1,5 +1,9 @@
 import { LogOut } from 'lucide-react'
 
+import { BrandMark } from './BrandMark'
+
+import styles from './Topbar.module.css'
+
 type Props = {
   email?: string
   signOut?: () => void
@@ -10,27 +14,26 @@ export function Topbar({
   signOut,
 }: Props) {
   return (
-    <header className="topbar">
-      <div>
-        <span className="eyebrow">
-          MINECRAFT JAVA
-        </span>
+    <header className={styles.topbar}>
+      <div className={styles.inner}>
+        <BrandMark />
 
-        <h1>Crackcraft</h1>
-      </div>
+        <div className={styles.userArea}>
+          <div className={styles.userCopy}>
+            <small>Sessão ativa</small>
+            <span>{email}</span>
+          </div>
 
-      <div className="user-area">
-        <span>{email}</span>
-
-        <button
-          type="button"
-          className="icon-button"
-          onClick={signOut}
-          title="Sair"
-          aria-label="Sair"
-        >
-          <LogOut size={18} />
-        </button>
+          <button
+            type="button"
+            className={styles.logout}
+            onClick={signOut}
+            title="Sair"
+            aria-label="Sair"
+          >
+            <LogOut size={18} />
+          </button>
+        </div>
       </div>
     </header>
   )

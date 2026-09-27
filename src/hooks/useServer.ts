@@ -45,12 +45,16 @@ export function useServer({
 
         setStatus(data)
         onError(null)
+
+        return data
       } catch (error) {
         onError(
           error instanceof Error
             ? error.message
             : 'Erro ao consultar o servidor',
         )
+
+        return null
       } finally {
         setLoading(false)
       }
@@ -72,10 +76,17 @@ export function useServer({
 
   const refreshAll =
     useCallback(async () => {
-      await Promise.all([
-        loadStatus(),
-        loadMinecraft(),
-      ])
+      const currentStatus = await loadStatus()
+
+      if (
+        currentStatus?.ec2State === 'running' &&
+        currentStatus.minecraftOnline
+      ) {
+        await loadMinecraft()
+        return
+      }
+
+      setMinecraft(null)
     }, [
       loadStatus,
       loadMinecraft,

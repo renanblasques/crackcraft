@@ -12,6 +12,7 @@ import {
 import {
   RemoveOperatorModal,
 } from './RemoveOperatorModal'
+import { Badge } from './ui/Badge'
 
 import type {
   MinecraftOperator,
@@ -168,12 +169,12 @@ export function OperatorsPanel({
                 </span>
               </div>
 
-              <span className="operators-badge">
+              <Badge className="operators-badge">
                 Padrão: nível{' '}
                 {
                   operators.defaultPermissionLevel
                 }
-              </span>
+              </Badge>
             </div>
 
             <div className="operators-list">

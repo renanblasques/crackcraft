@@ -12,6 +12,9 @@ import type {
   CostData,
 } from '../types/dashboard'
 
+import { FeedbackState } from './ui/FeedbackState'
+import { PanelHeader } from './ui/PanelHeader'
+
 type Props = {
   cost: CostData | null
   loading: boolean
@@ -171,57 +174,39 @@ export function CostPanel({
 
   return (
     <article className="panel">
-      <div className="panel-title">
-        <div>
-          <h2>
-            Custo do mês
-          </h2>
-
-          <p>
-            AWS Cost Explorer
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="cost-refresh"
-          disabled={!canRefresh}
-          onClick={() =>
-            void onRefresh()
-          }
-          title={
-            canRefresh
-              ? 'Atualizar custos'
-              : 'Os custos ainda estão em cache'
-          }
-          aria-label="Atualizar custos"
-        >
-          <RefreshCw
-            size={17}
-          />
-        </button>
-      </div>
+      <PanelHeader
+        title="Custo do mês"
+        subtitle="AWS Cost Explorer"
+        action={
+          <button
+            type="button"
+            className="cost-refresh"
+            disabled={!canRefresh}
+            onClick={() => void onRefresh()}
+            title={
+              canRefresh
+                ? 'Atualizar custos'
+                : 'Os custos ainda estão em cache'
+            }
+            aria-label="Atualizar custos"
+          >
+            <RefreshCw size={17} />
+          </button>
+        }
+      />
 
       {loading && !cost ? (
-        <div className="cost-placeholder">
-          <CircleDollarSign
-            size={30}
-          />
-
-          <strong>
-            Carregando custos...
-          </strong>
-        </div>
+        <FeedbackState
+          className="cost-placeholder"
+          icon={<CircleDollarSign size={30} />}
+          title="Carregando custos..."
+        />
       ) : error && !cost ? (
-        <div className="cost-placeholder">
-          <strong>
-            Não foi possível carregar
-          </strong>
-
-          <span>
-            {error}
-          </span>
-        </div>
+        <FeedbackState
+          className="cost-placeholder"
+          title="Não foi possível carregar"
+          description={error}
+        />
       ) : cost ? (
         <div className="cost-content">
           <div className="cost-total">

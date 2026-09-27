@@ -1,0 +1,32 @@
+.header {
+  padding: 26px 28px 12px;
+  display: grid;
+  gap: 20px;
+}
+
+.copy {
+  padding-top: 18px;
+  border-top: 1px solid var(--color-line);
+}
+
+.copy span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--color-grass-800);
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+
+.copy p {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.notice {
+  padding: 0 28px 24px;
+  color: var(--color-text-muted);
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: center;
+}

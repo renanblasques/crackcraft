@@ -12,6 +12,7 @@ import {
 import {
   RemovePlayerModal,
 } from './RemovePlayerModal'
+import { Badge } from './ui/Badge'
 
 import type {
   AllowlistData,
@@ -159,7 +160,7 @@ export function AllowlistPanel({
                 </span>
               </div>
 
-              <span
+              <Badge
                 className={
                   allowlist.enabled &&
                   allowlist.enforced
@@ -170,7 +171,7 @@ export function AllowlistPanel({
                 {allowlist.enabled
                   ? 'Ativada'
                   : 'Desativada'}
-              </span>
+              </Badge>
             </div>
 
             <div className="allowlist-list">

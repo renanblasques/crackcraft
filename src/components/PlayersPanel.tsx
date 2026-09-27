@@ -1,5 +1,8 @@
 import { Users } from 'lucide-react'
 
+import { FeedbackState } from './ui/FeedbackState'
+import { PanelHeader } from './ui/PanelHeader'
+
 import type {
   MinecraftData,
   ServerStatus,
@@ -16,19 +19,11 @@ export function PlayersPanel({
 }: Props) {
   return (
     <article className="panel">
-      <div className="panel-title">
-        <div>
-          <h2>
-            Jogadores online
-          </h2>
-
-          <p>
-            Quem está no Crackcraft agora
-          </p>
-        </div>
-
-        <Users size={20} />
-      </div>
+      <PanelHeader
+        title="Jogadores online"
+        subtitle="Quem está no Crackcraft agora"
+        action={<Users size={20} />}
+      />
 
       {minecraft?.online &&
       minecraft.players.length > 0 ? (
@@ -55,27 +50,23 @@ export function PlayersPanel({
           )}
         </div>
       ) : (
-        <div className="empty-state">
-          <Users size={32} />
-
-          <strong>
-            {minecraft?.online
+        <FeedbackState
+          icon={<Users size={32} />}
+          title={
+            minecraft?.online
               ? 'Nenhum jogador online'
-              : status?.ec2State ===
-                  'running'
+              : status?.ec2State === 'running'
                 ? 'Minecraft indisponível'
-                : 'Servidor offline'}
-          </strong>
-
-          <span>
-            {minecraft?.online
+                : 'Servidor offline'
+          }
+          description={
+            minecraft?.online
               ? 'O servidor está pronto para receber jogadores.'
-              : status?.ec2State ===
-                  'running'
+              : status?.ec2State === 'running'
                 ? 'O Minecraft ou o agente ainda pode estar iniciando.'
-                : 'Ligue o Crackcraft para começar a jogar.'}
-          </span>
-        </div>
+                : 'Ligue o Crackcraft para começar a jogar.'
+          }
+        />
       )}
     </article>
   )

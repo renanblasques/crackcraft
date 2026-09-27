@@ -1,0 +1,51 @@
+.skeleton {
+  display: grid;
+  gap: 18px;
+}
+
+.heading,
+.grid > div {
+  border: 1px solid var(--color-line);
+  background: linear-gradient(
+    90deg,
+    var(--color-stone-100),
+    var(--color-white),
+    var(--color-stone-100)
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.25s linear infinite;
+}
+
+.heading {
+  width: min(420px, 80%);
+  height: 74px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+}
+
+.grid > div {
+  height: 170px;
+}
+
+@keyframes shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heading,
+  .grid > div {
+    animation: none;
+  }
+}

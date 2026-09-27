@@ -1,10 +1,18 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { Amplify } from 'aws-amplify'
-import '@aws-amplify/ui-react/styles.css'
+import { I18n } from 'aws-amplify/utils'
+import {
+  translations,
+} from '@aws-amplify/ui-react'
 
 import App from './App.tsx'
+
+import '@aws-amplify/ui-react/styles.css'
 import './index.css'
+
+I18n.putVocabularies(translations)
+I18n.setLanguage('pt')
 
 Amplify.configure({
   Auth: {

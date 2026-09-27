@@ -10,7 +10,13 @@ import type {
   CostData,
 } from '../types/dashboard'
 
-export function useCost() {
+type UseCostOptions = {
+  enabled?: boolean
+}
+
+export function useCost({
+  enabled = true,
+}: UseCostOptions = {}) {
   const [cost, setCost] =
     useState<CostData | null>(null)
 
@@ -57,7 +63,7 @@ export function useCost() {
       }
     }, [])
 
-  useInitialLoad(loadCost)
+  useInitialLoad(loadCost, enabled)
 
   return {
     cost,

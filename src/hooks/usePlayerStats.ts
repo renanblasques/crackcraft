@@ -10,7 +10,13 @@ import type {
   PlayerStatsData,
 } from '../types/dashboard'
 
-export function usePlayerStats() {
+type UsePlayerStatsOptions = {
+  enabled?: boolean
+}
+
+export function usePlayerStats({
+  enabled = true,
+}: UsePlayerStatsOptions = {}) {
   const [
     playerStats,
     setPlayerStats,
@@ -32,6 +38,12 @@ export function usePlayerStats() {
 
   const loadPlayerStats =
     useCallback(async () => {
+      if (!enabled) {
+        setPlayerStatsLoading(false)
+        setPlayerStatsError(null)
+        return null
+      }
+
       try {
         setPlayerStatsLoading(true)
         setPlayerStatsError(null)
@@ -60,14 +72,16 @@ export function usePlayerStats() {
       } finally {
         setPlayerStatsLoading(false)
       }
-    }, [])
+    }, [enabled])
 
-  useInitialLoad(loadPlayerStats)
+  useInitialLoad(loadPlayerStats, enabled)
 
   return {
     playerStats,
-    playerStatsLoading,
-    playerStatsError,
+    playerStatsLoading:
+      enabled && playerStatsLoading,
+    playerStatsError:
+      enabled ? playerStatsError : null,
     loadPlayerStats,
   }
 }

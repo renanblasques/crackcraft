@@ -1,0 +1,45 @@
+.stack {
+  display: grid;
+  gap: 20px;
+}
+
+.pageHeading {
+  max-width: 720px;
+  margin-bottom: 4px;
+}
+
+.pageHeading h2 {
+  margin: 5px 0 6px;
+  font-size: clamp(28px, 4vw, 38px);
+}
+
+.pageHeading p {
+  color: var(--color-text-muted);
+  line-height: 1.65;
+}
+
+.kicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-grass-800);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.twoColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  align-items: start;
+}
+
+@media (max-width: 900px) {
+  .twoColumns {
+    grid-template-columns: 1fr;
+  }
+}
+

@@ -1,34 +1,54 @@
-import { useCallback, useEffect, useState } from 'react'
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useState,
+} from 'react'
+
 import { Authenticator } from '@aws-amplify/ui-react'
 
+import { useAllowlist } from './hooks/useAllowlist'
 import { useBackups } from './hooks/useBackups'
+import { useCost } from './hooks/useCost'
+import { useDashboardTabs } from './hooks/useDashboardTabs'
+import { useLogs } from './hooks/useLogs'
+import { useOperators } from './hooks/useOperators'
+import { usePlayerStats } from './hooks/usePlayerStats'
 import { useRestore } from './hooks/useRestore'
 import { useServer } from './hooks/useServer'
-import { useCost } from './hooks/useCost'
-import { useAllowlist } from './hooks/useAllowlist'
-import { useOperators } from './hooks/useOperators'
 import { useSettings } from './hooks/useSettings'
-import { useLogs } from './hooks/useLogs'
-import { usePlayerStats } from './hooks/usePlayerStats'
 
-import { Topbar } from './components/Topbar'
-import { StatsGrid } from './components/StatsGrid'
+import {
+  AuthFooter,
+  AuthHeader,
+} from './components/AuthHeader'
+import { DashboardTabs } from './components/DashboardTabs'
 import { ServerHero } from './components/ServerHero'
-import { PlayersPanel } from './components/PlayersPanel'
-import { CostPanel } from './components/CostPanel'
-import { BackupsPanel } from './components/backups/BackupsPanel'
-import { AllowlistPanel } from './components/AllowlistPanel'
-import { OperatorsPanel } from './components/OperatorsPanel'
-import { SettingsPanel } from './components/SettingsPanel'
-import { LogsPanel } from './components/LogsPanel'
-import { PlayerStatsPanel } from './components/PlayerStatsPanel'
+import { TabSkeleton } from './components/TabSkeleton'
+import { Topbar } from './components/Topbar'
 
 import { DeleteBackupModal } from './components/backups/DeleteBackupModal'
 import { RestoreConfirmModal } from './components/backups/RestoreConfirmModal'
 import { RestoreProgressModal } from './components/backups/RestoreProgressModal'
 import { RestoreResultModal } from './components/backups/RestoreResultModal'
 
-import './App.css'
+import styles from './App.module.css'
+
+const OverviewTab = lazy(
+  () => import('./components/tabs/OverviewTab'),
+)
+
+const PlayersTab = lazy(
+  () => import('./components/tabs/PlayersTab'),
+)
+
+const ServerTab = lazy(
+  () => import('./components/tabs/ServerTab'),
+)
+
+const ConsoleTab = lazy(
+  () => import('./components/tabs/ConsoleTab'),
+)
 
 function Dashboard({
   signOut,
@@ -37,39 +57,39 @@ function Dashboard({
   signOut?: () => void
   email?: string
 }) {
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] =
+    useState<string | null>(null)
 
   const {
-    status,
-    minecraft,
-    loading,
-    actionLoading,
-    refreshAll,
-    runAction,
-  } = useServer({
+    activeTab,
+    visitedTabs,
+    selectTab,
+  } = useDashboardTabs()
+
+  const overviewEnabled =
+    visitedTabs.has('overview')
+  const playersEnabled =
+    visitedTabs.has('players')
+  const serverEnabled =
+    visitedTabs.has('server')
+  const consoleEnabled =
+    visitedTabs.has('console')
+
+  const serverState = useServer({
     onError: setError,
   })
 
-  const {
-    backups,
-    backupStatus,
-    backupLoading,
+  const minecraftAvailable =
+    serverState.status?.ec2State === 'running' &&
+    serverState.status.minecraftOnline
 
-    backupToDelete,
-    setBackupToDelete,
-
-    deletingBackup,
-    downloadingBackup,
-
-    loadBackups,
-    loadBackupStatus,
-
-    createBackup,
-    downloadBackup,
-    deleteBackup,
-  } = useBackups({
+  const backupsState = useBackups({
     onError: setError,
+    enabled: serverEnabled,
   })
+
+  const { refreshAll } = serverState
+  const { loadBackups } = backupsState
 
   const handleRestoreFinished =
     useCallback(async () => {
@@ -82,227 +102,185 @@ function Dashboard({
       loadBackups,
     ])
 
-  const {
-    restoreToConfirm,
-    setRestoreToConfirm,
-
-    restoreStatus,
-    restoreStarting,
-
-    restoreFinishedOpen,
-    setRestoreFinishedOpen,
-
-    restoreRunning,
-
-    loadRestoreStatus,
-    restoreBackup,
-  } = useRestore({
+  const restoreState = useRestore({
     onError: setError,
-    onFinished:
-      handleRestoreFinished,
+    onFinished: handleRestoreFinished,
   })
 
-  const {
-    cost,
-    costLoading,
-    costError,
-    refreshCost,
-  } = useCost()
+  const costState = useCost({
+    enabled: overviewEnabled,
+  })
 
-  const {
-    allowlist,
-    allowlistLoading,
-    allowlistActionLoading,
-    allowlistError,
-    loadAllowlist,
-    addPlayer,
-    removePlayer,
-  } = useAllowlist()
+  const allowlistState = useAllowlist({
+    enabled: playersEnabled && minecraftAvailable,
+  })
 
-  const {
-    operators,
-    operatorsLoading,
-    operatorsActionLoading,
-    operatorsError,
-    loadOperators,
-    addOperator,
-    removeOperator,
-  } = useOperators()
+  const operatorsState = useOperators({
+    enabled: playersEnabled && minecraftAvailable,
+  })
 
-  const {
-    settings,
-    settingsLoading,
-    settingsSaving,
-    settingsError,
-    loadSettings,
-    updateSettings,
-  } = useSettings()
+  const settingsState = useSettings({
+    enabled: serverEnabled && minecraftAvailable,
+  })
 
-  const {
-    logs,
-    logsLoading,
-    logsError,
-    lineLimit,
-    loadLogs,
-    changeLineLimit,
-  } = useLogs()
+  const logsState = useLogs({
+    enabled: consoleEnabled && minecraftAvailable,
+  })
 
-  const {
-    playerStats,
-    playerStatsLoading,
-    playerStatsError,
-    loadPlayerStats,
-  } = usePlayerStats()
-
-  useEffect(() => {
-    void loadBackups()
-    void loadBackupStatus()
-    void loadRestoreStatus()
-  }, [
-    loadBackups,
-    loadBackupStatus,
-    loadRestoreStatus,
-  ])
+  const playerStatsState = usePlayerStats({
+    enabled: playersEnabled && minecraftAvailable,
+  })
 
   return (
-    <div className="app-shell">
-      <Topbar
-        email={email}
-        signOut={signOut}
+    <div className={styles.shell}>
+      <Topbar email={email} signOut={signOut} />
+
+      <DashboardTabs
+        activeTab={activeTab}
+        onChange={selectTab}
       />
 
-      <main className="dashboard">
+      <main className={styles.main}>
         {error && (
-          <div className="error-banner">
+          <div
+            className={styles.errorBanner}
+            role="alert"
+          >
             {error}
           </div>
         )}
 
         <ServerHero
-          status={status}
-          loading={loading}
-          actionLoading={actionLoading}
-          restoreRunning={restoreRunning}
-          onAction={runAction}
-          onRefresh={refreshAll}
+          status={serverState.status}
+          loading={serverState.loading}
+          actionLoading={serverState.actionLoading}
+          restoreRunning={restoreState.restoreRunning}
+          onAction={serverState.runAction}
+          onRefresh={serverState.refreshAll}
           onError={setError}
         />
 
-        <StatsGrid
-          status={status}
-          minecraft={minecraft}
-        />
+        <div className={styles.panels}>
+          {visitedTabs.has('overview') && (
+            <section
+              id="panel-overview"
+              className={styles.tabPanel}
+              role="tabpanel"
+              aria-labelledby="tab-overview"
+              hidden={activeTab !== 'overview'}
+            >
+              <Suspense fallback={<TabSkeleton />}>
+                <OverviewTab
+                  status={serverState.status}
+                  minecraft={serverState.minecraft}
+                  costState={costState}
+                />
+              </Suspense>
+            </section>
+          )}
 
-        <section className="content-grid">
-          <PlayersPanel
-            status={status}
-            minecraft={minecraft}
-          />
-            
-          <CostPanel
-            cost={cost}
-            loading={costLoading}
-            error={costError}
-            onRefresh={refreshCost}
-          />
-        </section>
+          {visitedTabs.has('players') && (
+            <section
+              id="panel-players"
+              className={styles.tabPanel}
+              role="tabpanel"
+              aria-labelledby="tab-players"
+              hidden={activeTab !== 'players'}
+            >
+              <Suspense fallback={<TabSkeleton />}>
+                <PlayersTab
+                  minecraftAvailable={minecraftAvailable}
+                  allowlistState={allowlistState}
+                  operatorsState={operatorsState}
+                  playerStatsState={playerStatsState}
+                />
+              </Suspense>
+            </section>
+          )}
 
-        <AllowlistPanel
-          allowlist={allowlist}
-          loading={allowlistLoading}
-          actionLoading={allowlistActionLoading}
-          error={allowlistError}
-          onRefresh={loadAllowlist}
-          onAdd={addPlayer}
-          onRemove={removePlayer}
-        />
+          {visitedTabs.has('server') && (
+            <section
+              id="panel-server"
+              className={styles.tabPanel}
+              role="tabpanel"
+              aria-labelledby="tab-server"
+              hidden={activeTab !== 'server'}
+            >
+              <Suspense fallback={<TabSkeleton />}>
+                <ServerTab
+                  minecraftAvailable={minecraftAvailable}
+                  settingsState={settingsState}
+                  backupsState={backupsState}
+                  restoreState={restoreState}
+                  serverRunning={
+                    serverState.status?.ec2State ===
+                    'running'
+                  }
+                />
+              </Suspense>
+            </section>
+          )}
 
-        <OperatorsPanel
-          operators={operators}
-          loading={operatorsLoading}
-          actionLoading={operatorsActionLoading}
-          error={operatorsError}
-          onRefresh={loadOperators}
-          onAdd={addOperator}
-          onRemove={removeOperator}
-        />
-
-        <SettingsPanel
-          settings={settings}
-          loading={settingsLoading}
-          saving={settingsSaving}
-          error={settingsError}
-          onRefresh={loadSettings}
-          onSave={updateSettings}
-        />
-
-        <BackupsPanel
-          backups={backups}
-          backupStatus={backupStatus}
-          backupLoading={backupLoading}
-          restoreRunning={restoreRunning}
-          downloadingBackup={downloadingBackup}
-          serverRunning={
-            status?.ec2State === 'running'
-          }
-          onCreateBackup={createBackup}
-          onDownloadBackup={downloadBackup}
-          onRestoreBackup={
-            setRestoreToConfirm
-          }
-          onDeleteBackup={
-            setBackupToDelete
-          }
-        />
+          {visitedTabs.has('console') && (
+            <section
+              id="panel-console"
+              className={styles.tabPanel}
+              role="tabpanel"
+              aria-labelledby="tab-console"
+              hidden={activeTab !== 'console'}
+            >
+              <Suspense fallback={<TabSkeleton />}>
+                <ConsoleTab
+                  minecraftAvailable={minecraftAvailable}
+                  logsState={logsState}
+                />
+              </Suspense>
+            </section>
+          )}
+        </div>
       </main>
 
+      <footer className={styles.footer}>
+        <span>
+          <strong>Crackcraft</strong> · Painel privado
+          para Minecraft: Java Edition
+        </span>
+        <span>
+          Projeto não oficial, não associado à Mojang
+          ou Microsoft.
+        </span>
+      </footer>
+
       <DeleteBackupModal
-        backup={backupToDelete}
-        deleting={deletingBackup}
+        backup={backupsState.backupToDelete}
+        deleting={backupsState.deletingBackup}
         onClose={() =>
-          setBackupToDelete(null)
+          backupsState.setBackupToDelete(null)
         }
-        onDelete={deleteBackup}
+        onDelete={backupsState.deleteBackup}
       />
 
       <RestoreConfirmModal
-        backup={restoreToConfirm}
-        starting={restoreStarting}
-        restoreRunning={restoreRunning}
+        backup={restoreState.restoreToConfirm}
+        starting={restoreState.restoreStarting}
+        restoreRunning={restoreState.restoreRunning}
         onClose={() =>
-          setRestoreToConfirm(null)
+          restoreState.setRestoreToConfirm(null)
         }
-        onRestore={restoreBackup}
+        onRestore={restoreState.restoreBackup}
       />
 
       <RestoreProgressModal
-        status={restoreStatus}
+        status={restoreState.restoreStatus}
       />
 
       <RestoreResultModal
-        open={restoreFinishedOpen}
-        status={restoreStatus}
+        open={restoreState.restoreFinishedOpen}
+        status={restoreState.restoreStatus}
         onClose={() =>
-          setRestoreFinishedOpen(false)
+          restoreState.setRestoreFinishedOpen(false)
         }
       />
-
-      <PlayerStatsPanel
-        data={playerStats}
-        loading={playerStatsLoading}
-        error={playerStatsError}
-        onRefresh={loadPlayerStats}
-      />
-
-      <LogsPanel
-        logs={logs}
-        loading={logsLoading}
-        error={logsError}
-        lineLimit={lineLimit}
-        onRefresh={loadLogs}
-        onLineLimitChange={changeLineLimit}
-      /> 
-
     </div>
   )
 }
@@ -312,6 +290,22 @@ function App() {
     <Authenticator
       loginMechanisms={['email']}
       hideSignUp
+      components={{
+        Header: AuthHeader,
+        Footer: AuthFooter,
+      }}
+      formFields={{
+        signIn: {
+          username: {
+            label: 'E-mail',
+            placeholder: 'voce@exemplo.com',
+          },
+          password: {
+            label: 'Senha',
+            placeholder: 'Digite sua senha',
+          },
+        },
+      }}
     >
       {({ signOut, user }) => (
         <Dashboard

@@ -1,0 +1,90 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.block {
+  position: relative;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  overflow: hidden;
+  border: 2px solid #1c3219;
+  background: #8a633e;
+  box-shadow: 3px 3px 0 #263f22;
+}
+
+.block::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 12px;
+  content: '';
+  background: #5eaa42;
+  border-bottom: 2px solid #39722a;
+}
+
+.block span {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: rgba(58, 35, 20, 0.35);
+}
+
+.block span:nth-child(1) {
+  left: 5px;
+  bottom: 6px;
+}
+
+.block span:nth-child(2) {
+  right: 5px;
+  bottom: 13px;
+  width: 5px;
+  height: 5px;
+}
+
+.block span:nth-child(3) {
+  left: 18px;
+  bottom: 2px;
+  width: 5px;
+  height: 5px;
+}
+
+.copy {
+  display: grid;
+  min-width: 0;
+  line-height: 1;
+}
+
+.copy small {
+  margin-bottom: 5px;
+  color: var(--color-text-muted);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.copy strong {
+  color: var(--color-ink);
+  font-family: var(--font-display);
+  font-size: clamp(23px, 3vw, 29px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+@media (max-width: 560px) {
+  .block {
+    width: 36px;
+    height: 36px;
+  }
+
+  .copy small {
+    display: none;
+  }
+
+  .copy strong {
+    font-size: 22px;
+  }
+}

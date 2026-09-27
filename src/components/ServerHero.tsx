@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import {
+  Check,
   Copy,
   Power,
   RefreshCw,
@@ -11,18 +12,17 @@ import type {
   ServerStatus,
 } from '../types/dashboard'
 
+import styles from './ServerHero.module.css'
+
 type Props = {
   status: ServerStatus | null
   loading: boolean
   actionLoading: boolean
   restoreRunning: boolean
-
   onAction: (
     path: '/start' | '/stop',
   ) => void | Promise<void>
-
   onRefresh: () => void | Promise<void>
-
   onError: (message: string) => void
 }
 
@@ -35,50 +35,40 @@ export function ServerHero({
   onRefresh,
   onError,
 }: Props) {
-  const [copied, setCopied] =
-    useState(false)
+  const [copied, setCopied] = useState(false)
 
   const visualStatus = (() => {
     switch (status?.serverStatus) {
       case 'online':
         return {
           label: 'Online',
-          description:
-            'Pronto para jogar',
-          className: 'online',
+          description: 'Pronto para jogar',
+          tone: styles.online,
         }
-
       case 'starting':
       case 'pending':
         return {
           label: 'Ligando',
-          description:
-            'Iniciando a instância AWS',
-          className: 'starting',
+          description: 'Iniciando a instância AWS',
+          tone: styles.starting,
         }
-
       case 'starting-minecraft':
         return {
           label: 'Carregando',
-          description:
-            'Minecraft está iniciando',
-          className: 'starting',
+          description: 'Minecraft está iniciando',
+          tone: styles.starting,
         }
-
       case 'stopping':
         return {
           label: 'Desligando',
-          description:
-            'Salvando o mundo e desligando',
-          className: 'starting',
+          description: 'Salvando o mundo',
+          tone: styles.starting,
         }
-
       default:
         return {
           label: 'Offline',
-          description:
-            'Servidor desligado',
-          className: 'offline',
+          description: 'Servidor desligado',
+          tone: styles.offline,
         }
     }
   })()
@@ -99,7 +89,6 @@ export function ServerHero({
       await navigator.clipboard.writeText(
         status.address,
       )
-
       setCopied(true)
 
       window.setTimeout(() => {
@@ -113,75 +102,58 @@ export function ServerHero({
   }
 
   return (
-    <section className="hero-card">
-      <div className="server-heading">
-        <div className="server-icon">
-          <Server size={28} />
+    <section
+      className={styles.controlBar}
+      aria-label="Controle do servidor"
+    >
+      <div className={styles.statusGroup}>
+        <div className={styles.serverIcon}>
+          <Server size={23} />
         </div>
 
         <div>
-          <div className="status-line">
+          <div className={styles.statusLine}>
             <span
-              className={`status-dot ${visualStatus.className}`}
+              className={`${styles.statusDot} ${visualStatus.tone}`}
             />
-
-            <strong>
-              {visualStatus.label}
-            </strong>
+            <strong>{visualStatus.label}</strong>
           </div>
-
-          <p>
+          <span className={styles.statusDescription}>
             {visualStatus.description}
-          </p>
+          </span>
         </div>
       </div>
 
-      {status?.address ? (
-        <div className="address-box">
-          <div>
-            <span>
-              Endereço do servidor
-            </span>
+      <div className={styles.address}>
+        <small>Endereço do servidor</small>
+        <strong>
+          {status?.address ?? 'Disponível quando online'}
+        </strong>
 
-            <strong>
-              {status.address}
-            </strong>
-          </div>
-
+        {status?.address && (
           <button
             type="button"
-            onClick={() =>
-              void copyAddress()
-            }
+            onClick={() => void copyAddress()}
+            className={styles.copyButton}
+            aria-label="Copiar endereço do servidor"
           >
-            <Copy size={17} />
-
-            {copied
-              ? 'Copiado!'
-              : 'Copiar'}
+            {copied ? (
+              <Check size={16} />
+            ) : (
+              <Copy size={16} />
+            )}
+            <span>{copied ? 'Copiado' : 'Copiar'}</span>
           </button>
-        </div>
-      ) : (
-        <div className="address-box disabled">
-          <div>
-            <span>
-              Endereço do servidor
-            </span>
+        )}
+      </div>
 
-            <strong>
-              Disponível quando o servidor estiver online
-            </strong>
-          </div>
-        </div>
-      )}
-
-      <div className="hero-actions">
+      <div className={styles.actions}>
         <button
           type="button"
           className={
             isStopped
-              ? 'primary-button'
-              : 'danger-button'
+              ? styles.startButton
+              : styles.stopButton
           }
           disabled={
             actionLoading ||
@@ -191,21 +163,16 @@ export function ServerHero({
           }
           onClick={() =>
             void onAction(
-              isStopped
-                ? '/start'
-                : '/stop',
+              isStopped ? '/start' : '/stop',
             )
           }
         >
-          <Power size={18} />
-
+          <Power size={17} />
           {actionLoading
             ? 'Aguarde...'
-            : status?.ec2State ===
-                'pending'
+            : status?.ec2State === 'pending'
               ? 'Ligando...'
-              : status?.ec2State ===
-                  'stopping'
+              : status?.ec2State === 'stopping'
                 ? 'Desligando...'
                 : isStopped
                   ? 'Ligar servidor'
@@ -214,15 +181,16 @@ export function ServerHero({
 
         <button
           type="button"
-          className="secondary-button"
-          onClick={() =>
-            void onRefresh()
-          }
+          className={styles.refreshButton}
+          onClick={() => void onRefresh()}
           disabled={loading}
+          aria-label="Atualizar status"
+          title="Atualizar status"
         >
-          <RefreshCw size={18} />
-
-          Atualizar
+          <RefreshCw
+            size={17}
+            className={loading ? styles.spinning : ''}
+          />
         </button>
       </div>
     </section>

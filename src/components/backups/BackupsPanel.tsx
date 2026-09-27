@@ -15,6 +15,10 @@ import {
   formatBytes,
 } from '../../utils/formatters'
 
+import { Button } from '../ui/Button'
+import { FeedbackState } from '../ui/FeedbackState'
+import { PanelHeader } from '../ui/PanelHeader'
+
 type Props = {
   backups: Backup[]
   backupStatus: BackupStatus | null
@@ -51,37 +55,27 @@ export function BackupsPanel({
 }: Props) {
   return (
     <section className="panel backups-panel">
-      <div className="panel-title backups-header">
-        <div>
-          <h2>Backups</h2>
-
-          <p>
-            Cópias automáticas do mundo
-            armazenadas no Amazon S3
-          </p>
-        </div>
-
-        <button
-          type="button"
-          className="secondary-button"
-          onClick={() =>
-            void onCreateBackup()
-          }
-          disabled={
-            backupLoading ||
-            backupStatus?.running ||
-            restoreRunning ||
-            !serverRunning
-          }
-        >
-          <HardDrive size={17} />
-
-          {backupStatus?.running ||
-          backupLoading
-            ? 'Criando backup...'
-            : 'Fazer backup agora'}
-        </button>
-      </div>
+      <PanelHeader
+        className="backups-header"
+        title="Backups"
+        subtitle="Cópias automáticas do mundo armazenadas no Amazon S3"
+        action={
+          <Button
+            onClick={() => void onCreateBackup()}
+            disabled={
+              backupLoading ||
+              backupStatus?.running ||
+              restoreRunning ||
+              !serverRunning
+            }
+          >
+            <HardDrive size={17} />
+            {backupStatus?.running || backupLoading
+              ? 'Criando backup...'
+              : 'Fazer backup agora'}
+          </Button>
+        }
+      />
 
       {backups.length > 0 ? (
         <div className="backup-list">
@@ -183,18 +177,11 @@ export function BackupsPanel({
             ))}
         </div>
       ) : (
-        <div className="empty-state">
-          <HardDrive size={32} />
-
-          <strong>
-            Nenhum backup encontrado
-          </strong>
-
-          <span>
-            Os backups aparecerão aqui
-            assim que forem criados.
-          </span>
-        </div>
+        <FeedbackState
+          icon={<HardDrive size={32} />}
+          title="Nenhum backup encontrado"
+          description="Os backups aparecerão aqui assim que forem criados."
+        />
       )}
 
       {backupStatus?.lastError && (
