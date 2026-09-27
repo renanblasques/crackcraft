@@ -1,0 +1,147 @@
+import {
+  useCallback,
+  useEffect,
+  useState,
+} from 'react'
+
+import { apiRequest } from '../services/api'
+
+import type {
+  MinecraftData,
+  ServerStatus,
+} from '../types/dashboard'
+
+type UseServerOptions = {
+  onError: (
+    message: string | null,
+  ) => void
+}
+
+export function useServer({
+  onError,
+}: UseServerOptions) {
+  const [status, setStatus] =
+    useState<ServerStatus | null>(null)
+
+  const [minecraft, setMinecraft] =
+    useState<MinecraftData | null>(null)
+
+  const [loading, setLoading] =
+    useState(true)
+
+  const [
+    actionLoading,
+    setActionLoading,
+  ] = useState(false)
+
+  const loadStatus =
+    useCallback(async () => {
+      try {
+        const data =
+          (await apiRequest(
+            '/status',
+          )) as ServerStatus
+
+        setStatus(data)
+        onError(null)
+      } catch (error) {
+        onError(
+          error instanceof Error
+            ? error.message
+            : 'Erro ao consultar o servidor',
+        )
+      } finally {
+        setLoading(false)
+      }
+    }, [onError])
+
+  const loadMinecraft =
+    useCallback(async () => {
+      try {
+        const data =
+          (await apiRequest(
+            '/minecraft',
+          )) as MinecraftData
+
+        setMinecraft(data)
+      } catch {
+        setMinecraft(null)
+      }
+    }, [])
+
+  const refreshAll =
+    useCallback(async () => {
+      await Promise.all([
+        loadStatus(),
+        loadMinecraft(),
+      ])
+    }, [
+      loadStatus,
+      loadMinecraft,
+    ])
+
+  const runAction =
+    useCallback(
+      async (
+        path: '/start' | '/stop',
+      ) => {
+        try {
+          setActionLoading(true)
+          onError(null)
+
+          await apiRequest(
+            path,
+            'POST',
+          )
+
+          /*
+           * Atualiza imediatamente para
+           * capturar pending/stopping.
+           */
+          await refreshAll()
+        } catch (error) {
+          onError(
+            error instanceof Error
+              ? error.message
+              : 'Erro ao controlar servidor',
+          )
+        } finally {
+          setActionLoading(false)
+        }
+      },
+      [
+        onError,
+        refreshAll,
+      ],
+    )
+
+  /*
+   * Sincronização inicial +
+   * atualização periódica.
+   */
+  useEffect(() => {
+    void refreshAll()
+
+    const interval =
+      window.setInterval(() => {
+        void refreshAll()
+      }, 10_000)
+
+    return () => {
+      window.clearInterval(
+        interval,
+      )
+    }
+  }, [refreshAll])
+
+  return {
+    status,
+    minecraft,
+
+    loading,
+    actionLoading,
+
+    refreshAll,
+    runAction,
+  }
+}
